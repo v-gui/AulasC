@@ -3,410 +3,607 @@
 #include <stdlib.h>
 
 FILE*Trab;
-char livro1[20],livro2[20],livro3[20];
-char autor1[20],autor2[20],autor3[20];
 
-int main(void){
-setlocale(LC_ALL,"");
-int opcao;
-do {
-        printf("------------------------------------------------------------------------------------------------------------------------\n");
-printf("\t\t\t\t                            | Menu |\n");
-printf("\t\t\t\t |   1 – Entrada de dados.                                       |\n");
-printf("\t\t\t\t |   2 – Lista todos os dados na tela.                           |\n");
-printf("\t\t\t\t |   3 – Pesquisa um livro com o nome completo e mostra na tela. |\n");
-printf("\t\t\t\t |   4 – Pesquisa autor pela 1° letra e mostra todos na tela.    |\n");
-printf("\t\t\t\t |   5 – Altera dados. Pesquisa pelo livro completo.             |\n");
-printf("\t\t\t\t |   6 – Exclui dados. Pesquisa pelo livro completo.             |\n");
-printf("\t\t\t\t |   7 - Saída.                                                  |\n");
-        printf("------------------------------------------------------------------------------------------------------------------------\n");
-scanf("%d",&opcao);
+struct livro
+{
+    char livro[30];
+    char autor[30];
+    int qtd;
+    float preco;
+};
 
-switch(opcao){
+int main(void)
+{
+    setlocale(LC_ALL,"");
+    struct livro livraria;
+    struct livro *plivraria = &livraria;
+    int opcao;
+    do
+    {
+        printf("------------------------------------------------------------------------------------\n");
+        printf("\t\t\t---- Menu de Opções ----\n");
+        printf("\t1 - Incluir Livros: \n");
+        printf("\t2 - Listar todos os Livros: \n");
+        printf("\t3 - Pesquisar um livro (Pelo nome completo)\n");
+        printf("\t4 - Pesquisar autor (Pelo nome completo)\n");
+        printf("\t5 - Pesquisar livro por faixa de preço: \n");
+        printf("\t6 - Alterar a quantidade (Entrada e saída, pesquisado pelo nome completo)\n");
+        printf("\t7 - Alterar o preço do livro: (Pesquisa nome completo) \n");
+        printf("\t8 - Alterar dados: (Pesquisa nome completo) \n");
+        printf("\t9 - Excluir dados: (Pesquisa nome completo) \n");
+        printf("\t10 - Sair\n\n");
+        printf("------------------------------------------------------------------------------------\n");
+        scanf("%d",&opcao);
+        getchar();
+        switch(opcao)
+        {
 
-    case 1:
-            entrada(Trab);
-            break;
-    case 2:
-            lista_dados(Trab);
-            break;
-    case 3:
-            pesquisalivro(Trab);
-            break;
-
-    case 4:
-            pesquisaautor(Trab);
-            break;
-
-    case 5:
-            alteradados(Trab);
-            break;
-
-    case 6:
-            excluirdados(Trab);
+        case 1:
+            entrada(plivraria);
             break;
 
-    case 7:
+        case 2:
+            listar_dados(plivraria);
+            break;
+
+        case 3:
+            pesquisar_livro(plivraria);
+            break;
+
+        case 4:
+            pesquisar_autor(plivraria);
+            break;
+
+        case 5:
+            pesquisar_preco(plivraria);
+            break;
+
+        case 6:
+            alterar_qtd(plivraria);
+            break;
+
+        case 7:
+            alterar_preco(plivraria);
+            break;
+
+        case 8:
+            alterar_dados(plivraria);
+            break;
+
+        case 9:
+            excluir_dados(plivraria);
+            break;
+
+        case 10:
+            printf("Fechando o programa! ");
             exit(0);
 
-            }
+        }
 
-}while(opcao!=7);
+    }
+    while(opcao!=10);
 }
 
-void entrada(FILE*Trab){
+void entrada(struct livro *livraria)
+{
 
-    Trab = fopen("Trab.txt", "w");
+    FILE *Trab;
 
-    printf("Digite o nome do 1° livro: \n");
-    // dois gets pois o primeiro é automaticamente pulado ?
-    gets(livro1);
-    gets(livro1);
-    printf("Digite o nome do 1° autor : \n");
-    gets(autor1);
-    printf("Digite o nome do 2° livro: \n");
-    gets(livro2);
-    printf("Digite o nome do 2° autor : \n");
-    gets(autor2);
-    printf("Digite o nome do 3° livro: \n");
-    gets(livro3);
-    printf("Digite o nome do 3° autor : \n");
-    gets(autor3);
+    Trab = fopen("data.txt", "a");
 
-    salvardados(Trab);
-        }
+    printf("Digite o nome do livro: ");
+    gets(livraria->livro);
+    printf("Digite o nome do autor: ");
+    gets(livraria->autor);
+    printf("Digite a quantidade: ");
+    scanf("%d", &livraria->qtd);
+    printf("Preço do livro: ");
+    scanf("%f", &livraria->preco);
+    printf("\n");
 
-void lista_dados(FILE*Trab){
+    fwrite(livraria, sizeof(struct livro), 1, Trab);
 
-        lerdados(Trab);
-
-        if(livro1[20]!='0'){
-            printf("\t 1° Livro: %s |  Autor: %s\n", livro1, autor1);
-            }
-        if(livro2[20]!='0'){
-            printf("\t 2° Livro: %s |  Autor: %s\n", livro2, autor2);
-            }
-        if(livro3[20]!='0'){
-            printf("\t 3° Livro: %s |  Autor: %s\n", livro3, autor3);
-            }
-            else {
-                printf("\t Nenhum livro cadastrado.\n");
-            }
+    printf("Itens registrados com sucesso! \n");
 
     fclose(Trab);
+
+    return;
+}
+
+void listar_dados(struct livro *livraria)
+{
+
+    FILE *Trab;
+
+    Trab=fopen("data.txt","r");
+
+    int conteudo;
+
+    if (Trab == NULL)
+    {
+        printf("Erro ao abrir o arquivo.\n");
+    }
+
+    else
+    {
+        conteudo=fread(livraria, sizeof(struct livro), 1, Trab);
+        fseek(Trab, 0, 0);
+
+        if(conteudo == 0)
+        {
+            printf("Não possui dados!, insira-os primeiro! \n");
+            return;
+        }
+
+        while(1)
+        {
+
+            conteudo=fread(livraria, sizeof(struct livro), 1, Trab);
+
+            if(conteudo == 0)
+            {
+                break;
+            }
+
+            if (livraria->livro != '\0' && livraria->livro[0] != '*')
+            {
+                printf("~~~~~~~~~~~~~~~~\n");
+                printf("Livro: %s\nAutor: %s\nQuantidade: %d\nPreço: R$ %.2f\n", livraria->livro, livraria->autor, livraria->qtd, livraria->preco);
+
+            }
+        }
+    }
+}
+
+
+int pesquisar_livro(struct livro *livraria)
+{
+
+    FILE*Trab;
+    int encontrado = 0;
+    char pesquisaLivro[30];
+    Trab = fopen("data.txt", "r");
+
+    printf("Digite o nome completo do livro que voce quer procurar: \n");
+    fgets(pesquisaLivro, sizeof(pesquisaLivro), stdin);
+
+    // Remover a quebra de linha do final da string
+    int i;
+    for (i = 0; i < sizeof(pesquisaLivro); i++)
+    {
+        if (pesquisaLivro[i] == '\n')
+        {
+            pesquisaLivro[i] = '\0';
+            break;
+        }
+    }
+
+    if (Trab == NULL)
+    {
+        printf("Erro ao abrir o arquivo.\n");
+    }
+    else
+    {
+        while (fread(livraria, sizeof(struct livro), 1, Trab) == 1)
+        {
+            int j;
+            int match = 1;
+
+            for(j=0; pesquisaLivro[j] != '\0'; j++)
+            {
+                if (pesquisaLivro[j] != livraria->livro[j])
+                {
+                    match = 0;
+                    break;
                 }
+            }
+            if(match && livraria->livro[j] == '\0')
+            {
+                printf("~~~~~~~~~~~~~~~~\n");
+                printf("\tLivro encontrado! \n");
+                printf("Livro: %s\n", livraria->livro);
+                printf("Autor: %s\n", livraria->autor);
+                printf("Quantidade Atual: %d\n", livraria->qtd);
+                printf("Preço do Livro: %.2f\n", livraria->preco);
+                encontrado = 1;
 
-void pesquisalivro(FILE*Trab){
-
-    char pesquisalivro[20];
-    int cont, i=0;
-
-    Trab = fopen("Trab.txt", "r");
-
-        fread(livro1, sizeof(livro1), 1, Trab);
-        fread(autor1, sizeof(autor1), 1, Trab);
-
-        fread(livro2, sizeof(livro2), 1, Trab);
-        fread(autor2, sizeof(autor2), 1, Trab);
-
-        fread(livro3, sizeof(livro3), 1, Trab);
-        fread(autor3, sizeof(autor3), 1, Trab);
-
-        printf("\t Digite o nome completo do livro que voce quer procurar. \n");
-        gets(pesquisalivro);
-        gets(pesquisalivro);
-
-
-       for(cont = 0; pesquisalivro[cont] != '\0' ; cont++){
-
-            if (pesquisalivro[cont] != livro1[cont])
-        {
-
-            break;
-        }
-    }
-
-        if(pesquisalivro[cont] == '\0' && livro1[cont] == '\0')
-        {
-            printf("\tLivro encontrado: %s \n", pesquisalivro);
-            i=1;
-        }
-        // ---------------------------------------------------------------
-        for(cont = 0; pesquisalivro[cont] != '\0' ; cont++){
-
-            if (pesquisalivro[cont] != livro2[cont])
-        {
-
-            break;
-        }
-    }
-
-        if(pesquisalivro[cont] == '\0' && livro2[cont] == '\0')
-        {
-            printf("\tLivro encontrado: %s \n", pesquisalivro);
-            i=1;
-        }
-         // ---------------------------------------------------------------
-         for(cont = 0; pesquisalivro[cont] != '\0' ; cont++){
-
-            if (pesquisalivro[cont] != livro3[cont])
-        {
-
-            break;
-        }
-    }
-
-        if(pesquisalivro[cont] == '\0' && livro3[cont] == '\0')
-        {
-            printf("\tLivro encontrado: %s \n", pesquisalivro);
-            i=1;
+            }
         }
 
-        if(i == 0){
-            printf("O livro procurado não foi encontrado. \n");
+        if (!encontrado)
+        {
+            printf("Nenhum livro encontrado com esse nome.\n");
         }
 
         fclose(Trab);
+    }
 }
 
-void pesquisaautor(FILE*Trab){
+void pesquisar_autor(struct livro *livraria)
+{
 
-    char letra[20];
-    int cont, i=0;
+    FILE*Trab;
+    int encontrado = 0;
+    char pesquisaAutor[30];
+    Trab = fopen("data.txt", "r");
 
-    lerdados(Trab);
+    printf("Digite o nome completo do autor que voce quer procurar: \n");
+    fgets(pesquisaAutor, sizeof(pesquisaAutor), stdin);
 
-    printf("\t Digite a primeira letra do nome do autor.\n");
-    scanf(" %c",&letra);
-
-            if(letra[0] != autor1[0]){
-                        i=0;
-        }
-
-            if(letra[0] != autor2[0]){
-                       i=0;
-        }
-
-            if(letra[0] != autor3[0]){
-                        i=0;
-        }
-
-            if(letra[0] == autor1[0]){
-                printf("\t Autor: %s \n",autor1);
-                i=1;
-            }
-            if(letra[0] == autor2[0]){
-                printf("\t Autor: %s \n",autor2);
-                i=1;
-            }
-            if(letra[0] == autor3[0]){
-                printf("\t Autor: %s \n",autor3);
-                i=1;
-            }
-            if(i == 0){
-                printf("\tNão encontrei este autor no sistema, certifique-se que usou a letra maiscula pois se trata de um nome próprio.\n");
-            }
-
-    fclose(Trab);
-}
-
-void excluirdados(FILE*Trab){
-
-char excluirdados[20];
-int i=0, cont;
-
-       lerdados(Trab);
-
-        printf("\tQual livro você deseja excluir? Digite o nome completo do livro. \n");
-        gets(excluirdados);
-        gets(excluirdados);
-
-
-         for(cont = 0; excluirdados[cont] != '\0' ; cont++){
-
-            if (excluirdados[cont] != livro1[cont])
+    // Remover a quebra de linha do final da string
+    int i;
+    for (i = 0; i < sizeof(pesquisaAutor); i++)
+    {
+        if (pesquisaAutor[i] == '\n')
         {
-
-            break;
-        }}
-
-        if(excluirdados[cont] == '\0' && livro1[cont] == '\0')
-        {
-            printf("Dados do 1° livro apagados.\n");
-
-            Trab = fopen("Trab.txt", "w");
-
-        for (int j = 0; j < 20; j++)
-        {
-            livro1[j] = '*';
-        }
-
-        for (int j = 0; j < 20; j++)
-        {
-            autor1[j] = '*';
-        }
-            i = 1;
-        }
-// -------------------------------------------------------------------------
-        for(cont = 0; excluirdados[cont] != '\0' ; cont++){
-
-            if (excluirdados[cont] != livro2[cont])
-        {
-
-            break;
-        }}
-
-        if(excluirdados[cont] == '\0' && livro2[cont] == '\0')
-        {
-            printf("Dados do 2° livro apagados.\n");
-
-            Trab = fopen("Trab.txt", "w");
-
-        for (int j = 0; j < 20; j++)
-        {
-            livro2[j] = '*';
-        }
-
-        for (int j = 0; j < 20; j++)
-        {
-            autor2[j] = '*';
-        }
-            i = 1;
-        }
-
-        // ---------------------------------------------------------------
-         for(cont = 0; excluirdados[cont] != '\0' ; cont++){
-
-            if (excluirdados[cont] != livro3[cont])
-        {
-
-            break;
-        }}
-
-        if(excluirdados[cont] == '\0' && livro3[cont] == '\0')
-        {
-            printf("Dados do 3° livro apagados.\n");
-
-            Trab = fopen("Trab.txt", "w");
-
-        for (int j = 0; j < 20; j++)
-        {
-            livro3[j] = '*';
-        }
-
-        for (int j = 0; j < 20; j++)
-        {
-            autor3[j] = '*';
-        }
-            i = 1;
-        }
-
-        salvardados(Trab);
-}
-
-void alteradados(FILE*Trab){
-
- char pesquisalivro[20];
-    int cont, i=0;
-
-    lerdados(Trab);
-        printf("\t Qual nome do livro que voce quer procurar? \n");
-        gets(pesquisalivro);
-        gets(pesquisalivro);
-
-       for(cont = 0; pesquisalivro[cont] != '\0' ; cont++){
-
-            if (pesquisalivro[cont] != livro1[cont])
-        {
-
+            pesquisaAutor[i] = '\0';
             break;
         }
     }
 
-        if(pesquisalivro[cont] == '\0' && livro1[cont] == '\0')
+    if (Trab == NULL)
+    {
+        printf("Erro ao abrir o arquivo.\n");
+    }
+    else
+    {
+        while (fread(livraria, sizeof(struct livro), 1, Trab) == 1)
         {
-            printf("Livro encontrado: %s \n", pesquisalivro);
-            i=1;
-            printf("Insira o novo nome do Livro: \n");
-            gets(livro1);
-            printf("Insira o novo nome do Autor: \n");
-            gets(autor1);
-            printf("Dados alterados com sucesso! \n\n");
+            int j;
+            int match = 1;
+
+            for(j=0; pesquisaAutor[j] != '\0'; j++)
+            {
+                if (pesquisaAutor[j] != livraria->autor[j])
+                {
+                    match = 0;
+                    break;
+                }
+            }
+            if(match && livraria->autor[j] == '\0')
+            {
+                printf("~~~~~~~~~~~~~~~~\n");
+                printf("\tAutor encontrado! \n");
+                printf("Livro: %s\n", livraria->livro);
+                printf("Autor: %s\n", livraria->autor);
+                printf("Quantidade Atual: %d\n", livraria->qtd);
+                printf("Preço do Livro: %.2f\n", livraria->preco);
+                encontrado = 1;
+
+            }
         }
-        // ---------------------------------------------------------------
-        for(cont = 0; pesquisalivro[cont] != '\0' ; cont++){
 
-            if (pesquisalivro[cont] != livro2[cont])
+        if (!encontrado)
         {
+            printf("Nenhum autor encontrado com esse nome.\n");
+        }
 
+        fclose(Trab);
+    }
+}
+
+void pesquisar_preco(struct livro *livraria)
+{
+
+    FILE *Trab;
+    float preco_min,preco_max;
+    int conteudo = 0;
+    Trab = fopen("data.txt","r");
+
+    if (Trab == NULL)
+    {
+        printf("Erro ao abrir o arquivo.\n");
+    }
+
+    else
+    {
+        printf("Digite o valor minimo do preco do livro que deseja pesquisar: R$ ");
+        scanf("%f", &preco_min);
+
+        printf("Digite o valor maximo do preco do livro que deseja pesquisar: R$ ");
+        scanf("%f", &preco_max);
+        conteudo=fread(livraria, sizeof(struct livro), 1, Trab);
+        fseek(Trab,0,0);
+        if(conteudo ==0)
+        {
+            printf("Não possui dados!, insira-os primeiro! \n");
+            return;
+        }
+
+        while(1)
+        {
+            conteudo=fread(livraria, sizeof(struct livro), 1, Trab);
+
+            if(conteudo == 0)
+            {
+                break;
+            }
+
+
+            if (livraria->preco>=preco_min && livraria->preco<=preco_max)
+            {
+                printf("~~~~~~~~~~~~~~~~\n");
+                printf("\tLivro encontrado! \n");
+                printf("Livro: %s\n", livraria->livro);
+                printf("Autor: %s\n", livraria->autor);
+                printf("Quantidade Atual: %d\n", livraria->qtd);
+                printf("Preço do Livro: %.2f\n", livraria->preco);
+                conteudo = 1;
+            }
+        }
+    }
+}
+
+void alterar_qtd(struct livro *livraria)
+{
+    FILE *Trab;
+    int encontrado = 0;
+    char pesquisaLivro[30];
+    Trab = fopen("data.txt", "r+");
+
+    printf("Digite o nome completo do livro que você quer alterar a quantidade: \n");
+    fgets(pesquisaLivro, sizeof(pesquisaLivro), stdin);
+
+    int i;
+    for (i = 0; i < sizeof(pesquisaLivro); i++)
+    {
+        if (pesquisaLivro[i] == '\n')
+        {
+            pesquisaLivro[i] = '\0';
             break;
         }
     }
 
-        if(pesquisalivro[cont] == '\0' && livro2[cont] == '\0')
+    if (Trab == NULL)
+    {
+        printf("Erro ao abrir o arquivo.\n");
+        return;
+    }
+    else
+    {
+        while (fread(livraria, sizeof(struct livro), 1, Trab) == 1)
         {
-            printf("Livro encontrado: %s \n", pesquisalivro);
-            i=1;
-            printf("Insira o novo nome do Livro: \n");
-            gets(livro2);
-            printf("Insira o novo nome do Autor: \n");
-            gets(autor2);
-            printf("Dados alterados com sucesso! \n\n");
+            int j;
+            int match = 1;
+
+            for(j = 0; pesquisaLivro[j] != '\0'; j++)
+            {
+                if (pesquisaLivro[j] != livraria->livro[j])
+                {
+                    match = 0;
+                    break;
+                }
+            }
+            if(match && livraria->livro[j] == '\0')
+            {
+                printf("~~~~~~~~~~~~~~~~\n");
+                printf("Livro encontrado! \n");
+                printf("Quantidade Atual: %d\n", livraria->qtd);
+
+                encontrado = 1;
+
+                // Solicitar nova quantidade
+                printf("~~~~~~~~~~~~~~~~\n");
+                printf("Digite a nova quantidade: ");
+                scanf("%d", &(livraria->qtd));
+
+                // Atualizar a quantidade no arquivo
+                fseek(Trab, -sizeof(struct livro), SEEK_CUR);
+                fwrite(livraria, sizeof(struct livro), 1, Trab);
+                break;
+            }
         }
-         // ---------------------------------------------------------------
-         for(cont = 0; pesquisalivro[cont] != '\0' ; cont++){
 
-            if (pesquisalivro[cont] != livro3[cont])
+        if (!encontrado)
         {
+            printf("Nenhum livro encontrado com esse nome.\n");
+        }
 
+        fclose(Trab);
+    }
+}
+
+void alterar_preco(struct livro *livraria)
+{
+    FILE *Trab;
+    int encontrado = 0;
+    char pesquisaLivro[30];
+    Trab = fopen("data.txt", "r+");
+
+    printf("Digite o nome completo do livro que você quer alterar o preço: \n");
+    fgets(pesquisaLivro, sizeof(pesquisaLivro), stdin);
+
+    int i;
+    for (i = 0; i < sizeof(pesquisaLivro); i++)
+    {
+        if (pesquisaLivro[i] == '\n')
+        {
+            pesquisaLivro[i] = '\0';
             break;
         }
     }
 
-        if(pesquisalivro[cont] == '\0' && livro3[cont] == '\0')
+    if (Trab == NULL)
+    {
+        printf("Erro ao abrir o arquivo.\n");
+        return;
+    }
+    else
+    {
+        while (fread(livraria, sizeof(struct livro), 1, Trab) == 1)
         {
-            printf("Livro encontrado: %s \n", pesquisalivro);
-            i=1;
-            printf("Insira o novo nome do Livro: \n");
-            gets(livro3);
-            printf("Insira o novo nome do Autor: \n");
-            gets(autor3);
-            printf("Dados alterados com sucesso! \n\n");
+            int j;
+            int match = 1;
+
+            for(j = 0; pesquisaLivro[j] != '\0'; j++)
+            {
+                if (pesquisaLivro[j] != livraria->livro[j])
+                {
+                    match = 0;
+                    break;
+                }
+            }
+            if(match && livraria->livro[j] == '\0')
+            {
+                printf("~~~~~~~~~~~~~~~~\n");
+                printf("Livro encontrado! \n");
+                printf("Preço do Livro: %.2f\n", livraria->preco);
+                encontrado = 1;
+
+                // Solicitar novo preço
+                printf("~~~~~~~~~~~~~~~~\n");
+                printf("Digite o novo preço: ");
+                scanf("%f", &(livraria->preco));
+
+                // Atualizar a quantidade no arquivo
+                fseek(Trab, -sizeof(struct livro), SEEK_CUR);
+                fwrite(livraria, sizeof(struct livro), 1, Trab);
+                break;
+            }
         }
 
-        if(i == 0){
-            printf("O livro procurado não foi encontrado. \n");
+        if (!encontrado)
+        {
+            printf("Nenhum livro encontrado com esse nome.\n");
         }
 
-    Trab = fopen("Trab.txt", "w");
-
-    salvardados(Trab);
+        fclose(Trab);
+    }
 }
 
-void lerdados(FILE*Trab){
+void alterar_dados(struct livro *livraria)
+{
+    FILE *Trab;
+    int encontrado = 0;
+    char pesquisaLivro[30];
+    Trab = fopen("data.txt", "r+");
 
-        Trab = fopen("Trab.txt", "r");
+    printf("Digite o nome completo do livro que você quer alterar: \n");
+    fgets(pesquisaLivro, sizeof(pesquisaLivro), stdin);
 
-        fread(&livro1, sizeof(livro1), 1, Trab);
-        fread(&autor1, sizeof(autor1), 1, Trab);
-        fread(&livro2, sizeof(livro2), 1, Trab);
-        fread(&autor2, sizeof(autor2), 1, Trab);
-        fread(&livro3, sizeof(livro3), 1, Trab);
-        fread(&autor3, sizeof(autor3), 1, Trab);
+    int i;
+    for (i = 0; i < sizeof(pesquisaLivro); i++)
+    {
+        if (pesquisaLivro[i] == '\n')
+        {
+            pesquisaLivro[i] = '\0';
+            break;
+        }
+    }
 
+    if (Trab == NULL)
+    {
+        printf("Erro ao abrir o arquivo.\n");
+        return;
+    }
+    else
+    {
+        while (fread(livraria, sizeof(struct livro), 1, Trab) == 1)
+        {
+            int j;
+            int match = 1;
+
+            for(j = 0; pesquisaLivro[j] != '\0'; j++)
+            {
+                if (pesquisaLivro[j] != livraria->livro[j])
+                {
+                    match = 0;
+                    break;
+                }
+            }
+            if(match && livraria->livro[j] == '\0')
+            {
+                encontrado = 1;
+
+                // Solicitar novos dados
+                printf("~~~~~~~~~~~~~~~~\n");
+                printf("Digite o nome do novo livro: ");
+                gets(livraria->livro);
+                printf("Digite o nome do novo autor: ");
+                gets(livraria->autor);
+                printf("Digite a quantidade: ");
+                scanf("%d", &(livraria->qtd));
+                printf("Preço do livro: ");
+                scanf("%f", &(livraria->preco));
+                printf("\n");
+
+                // Atualizar a quantidade no arquivo
+                fseek(Trab, -sizeof(struct livro), SEEK_CUR);
+                fwrite(livraria, sizeof(struct livro), 1, Trab);
+                break;
+            }
+        }
+
+        if (!encontrado)
+        {
+            printf("Nenhum livro encontrado com esse nome.\n");
+        }
+
+        fclose(Trab);
+    }
 }
 
+void excluir_dados(struct livro *livraria)
+{
+    FILE *Trab;
+    int encontrado = 0;
+    char pesquisaLivro[30];
+    Trab = fopen("data.txt", "r+");
 
-void salvardados(FILE*Trab){
+    printf("Digite o nome completo do livro que você quer excluir: \n");
+    fgets(pesquisaLivro, sizeof(pesquisaLivro), stdin);
 
-    fwrite(livro1, sizeof(livro1), 1, Trab);
-    fwrite(autor1, sizeof(autor1), 1, Trab);
-    fwrite(livro2, sizeof(livro2), 1, Trab);
-    fwrite(autor2, sizeof(autor2), 1, Trab);
-    fwrite(livro3, sizeof(livro3), 1, Trab);
-    fwrite(autor3, sizeof(autor3), 1, Trab);
+    int i;
+    for (i = 0; i < sizeof(pesquisaLivro); i++)
+    {
+        if (pesquisaLivro[i] == '\n')
+        {
+            pesquisaLivro[i] = '\0';
+            break;
+        }
+    }
 
+    if (Trab == NULL)
+    {
+        printf("Erro ao abrir o arquivo.\n");
+        return;
+    }
+    else
+    {
+        while (fread(livraria, sizeof(struct livro), 1, Trab) == 1)
+        {
+            int j;
+            int match = 1;
 
-    fclose(Trab);
+            for(j = 0; pesquisaLivro[j] != '\0'; j++)
+            {
+                if (pesquisaLivro[j] != livraria->livro[j])
+                {
+                    match = 0;
+                    break;
+                }
+            }
+            if(match && livraria->livro[j] == '\0')
+            {
+                encontrado = 1;
+
+                // Excluindo os dados
+                printf("~~~~~~~~~~~~~~~~\n");
+                livraria->livro[0] = '*';
+
+                // Atualizar a quantidade no arquivo
+                fseek(Trab, -sizeof(struct livro), SEEK_CUR);
+                fwrite(livraria, sizeof(struct livro), 1, Trab);
+                break;
+            }
+        }
+
+        if (!encontrado)
+        {
+            printf("Nenhum livro encontrado com esse nome.\n");
+        }
+
+        fclose(Trab);
+    }
 }
 
